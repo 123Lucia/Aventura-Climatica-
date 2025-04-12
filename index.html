@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aventura Climática</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body style="background-image: url('https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1500&q=80'); background-size: cover; background-attachment: fixed;">  <div class="container">
+    <h1>¡Bienvenido a la Aventura Climática!</h1>
+    <p id="instrucciones">
+      Explora ecosistemas afectados por el cambio climático. Toma decisiones sabias para llegar al Nodo de Sostenibilidad.
+    </p>
+
+    <div id="ecosistema"></div>
+
+    <div id="desafio" class="hidden">
+      <p id="pregunta"></p>
+      <ul id="opcionesRespuesta"></ul>
+    </div>
+
+    <div id="opciones" class="hidden">
+      <button onclick="navegar('izquierda')">Ir a la izquierda</button>
+      <button onclick="navegar('derecha')">Ir a la derecha</button>
+      <button onclick="salirJuego()">Salir</button>
+    </div>
+
+    <div id="mensajeFinal" class="hidden"></div>
+  </div>
+
+  <script>
+    class Nodo {
+      constructor(nombre, pregunta, respuesta, opciones = []) {
+        this.nombre = nombre;
+        this.pregunta = pregunta;
+        this.respuesta = respuesta;
+        this.opciones = opciones;
+        this.izquierda = null;
+        this.derecha = null;
+      }
+    }
+
+    // Crear árbol con desafíos y opciones
+    let raiz = new Nodo("Bosque Tropical", "¿Qué gas es responsable del efecto invernadero?", "co2", ["oxígeno", "nitrógeno", "co2"]);
+    raiz.izquierda = new Nodo("Desierto", "¿Cómo podemos reducir el uso del agua?", "cerrar grifo", ["regar más", "cerrar grifo", "usar más" ]);
+    raiz.derecha = new Nodo("Ciudad Contaminada", "¿Qué medio de transporte es más ecológico?", "bicicleta", ["carro", "bicicleta", "moto"]);
+
+    raiz.izquierda.izquierda = new Nodo("Océano Contaminado", "¿Qué debemos evitar tirar al mar?", "plastico", ["papel", "plastico", "agua"]);
+    raiz.izquierda.derecha = new Nodo("Zona Árida Recuperada", "¿Qué planta ayuda a recuperar suelos en zonas secas?", "cactus", ["rosas", "cactus", "pino"]);
+
+    raiz.derecha.izquierda = new Nodo("Zona Industrial", "¿Qué tipo de energía genera menos contaminación?", "solar", ["carbón", "gas", "solar"]);
+    raiz.derecha.derecha = new Nodo("Área Reforestada", "¿Cuál es el beneficio principal de plantar árboles?", "oxigeno", ["sombra", "flores", "oxigeno"]);
+
+    const nodoFinal = new Nodo("Nodo de Sostenibilidad", "¿Qué es la sostenibilidad?", "equilibrio", ["desequilibrio", "abandono", "equilibrio"]);
+    raiz.izquierda.derecha.derecha = nodoFinal;
+    raiz.derecha.derecha.derecha = nodoFinal;
+    raiz.derecha.izquierda.derecha = nodoFinal;
+
+    let nodoActual = raiz;
+
+    function mostrarEcosistema() {
+      document.getElementById("ecosistema").innerText = `Estás en: ${nodoActual.nombre}`;
+      document.getElementById("pregunta").innerText = nodoActual.pregunta;
+      const opcionesContainer = document.getElementById("opcionesRespuesta");
+      opcionesContainer.innerHTML = "";
+
+      nodoActual.opciones.forEach(op => {
+        const li = document.createElement("li");
+        const btn = document.createElement("button");
+        btn.textContent = op;
+        btn.onclick = () => verificarRespuesta(op);
+        li.appendChild(btn);
+        opcionesContainer.appendChild(li);
+      });
+
+      document.getElementById("desafio").classList.remove("hidden");
+      document.getElementById("opciones").classList.add("hidden");
+    }
+
+    function verificarRespuesta(respuestaSeleccionada) {
+      if (respuestaSeleccionada.toLowerCase() === nodoActual.respuesta.toLowerCase()) {
+        alert("✅ ¡Correcto!");
+        document.getElementById("desafio").classList.add("hidden");
+        document.getElementById("opciones").classList.remove("hidden");
+      } else {
+        alert("❌ Respuesta incorrecta. Intenta de nuevo.");
+      }
+    }
+
+    function navegar(direccion) {
+      const siguiente = nodoActual[direccion];
+      if (siguiente) {
+        nodoActual = siguiente;
+        if (nodoActual.nombre === "Nodo de Sostenibilidad") {
+          document.getElementById("ecosistema").innerText = nodoActual.nombre;
+          document.getElementById("desafio").classList.add("hidden");
+          document.getElementById("opciones").classList.add("hidden");
+          document.getElementById("mensajeFinal").classList.remove("hidden");
+          document.getElementById("mensajeFinal").innerText = "¡Felicitaciones! Has aprendido sobre el cambio climático y cómo ayudar a salvar el planeta.";
+        } else {
+          mostrarEcosistema();
+        }
+      } else {
+        alert("⛔ Camino sin salida. No puedes llegar al Nodo de Sostenibilidad desde aquí. Intenta otra dirección.");
+      }
+    }
+
+    function salirJuego() {
+      document.body.innerHTML = '<h1>Gracias por jugar Aventura Climática 🌱</h1>';
+    }
+
+    window.onload = mostrarEcosistema;
+  </script>
+</body>
+</html>
